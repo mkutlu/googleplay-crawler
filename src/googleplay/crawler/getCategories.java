@@ -6,8 +6,7 @@
 package googleplay.crawler;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -18,14 +17,17 @@ import org.jsoup.select.Elements;
  */
 public class getCategories {
     
-    public void getAllCategories() throws IOException {
+    public ArrayList getAllCategories() throws IOException {
         Document document = Jsoup.connect("https://play.google.com/store/apps").get();
         Elements categories = document.select(".child-submenu-link");
         SQLiteJDBC sql = new SQLiteJDBC();
+        ArrayList<String> arr = new  ArrayList<>();
         System.out.println("Categories are creating:");
         categories.forEach(category -> {
             System.out.println(category.attr("title")+" : "+category.attr("href"));
+            arr.add(category.attr("title")+" : "+category.attr("href"));
             sql.addCategoryEntry(category.attr("title"),category.attr("href"));   
         });
+        return arr;
     }
 }

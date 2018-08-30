@@ -43,34 +43,59 @@ public class SQLiteJDBC {
     }
 
     public void addCategoryEntry(String name, String href) {
-        String sql = "INSERT INTO categories(href,categoryName) VALUES(?,?)";
+        if (!checkCatExist(href)) {
+            String sql = "INSERT INTO categories(href,categoryName) VALUES(?,?)";
 
-        try (Connection conn = DriverManager.getConnection(url);
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, href);
-            pstmt.setString(2, name);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            try (Connection conn = DriverManager.getConnection(url);
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, href);
+                pstmt.setString(2, name);
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        } else {
+            System.out.println(name + "already Exist");
         }
     }
 
     public void addAppEntry(String id, String appName, String catHref, String updateDate, String devMail) {
-        String sql = "INSERT INTO apps(id,appName,catHref,updateDate,devMail) VALUES(?,?,?,?,?)";
+        if (!checkEntryExist(id)) {
+            String sql = "INSERT INTO apps(id,appName,catHref,updateDate,devMail) VALUES(?,?,?,?,?)";
+
+            try (Connection conn = DriverManager.getConnection(url);
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                Date converted = convertStrToDate(updateDate);
+                java.sql.Date sd = new java.sql.Date(converted.getTime());
+                pstmt.setString(1, id);
+                pstmt.setString(2, appName);
+                pstmt.setString(3, catHref);
+                pstmt.setDate(4, sd);
+                pstmt.setString(5, devMail);
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        else{
+            System.out.println(appName+" already exist in database");
+        }
+    }
+
+    public boolean checkCatExist(String id) {
+        String sql = "SELECT COUNT(*) as total FROM categories where catHref=?";
 
         try (Connection conn = DriverManager.getConnection(url);
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            Date converted = convertStrToDate(updateDate);
-            java.sql.Date sd = new java.sql.Date(converted.getTime());
+                PreparedStatement pstmt = conn.prepareStatement(sql);) {
             pstmt.setString(1, id);
-            pstmt.setString(2, appName);
-            pstmt.setString(3, catHref);
-            pstmt.setDate(4, sd);
-            pstmt.setString(5, devMail);
-            pstmt.executeUpdate();
+            ResultSet rs = pstmt.executeQuery();
+            // loop through the result set
+            return rs.getInt("total") > 0;
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+        return false;
     }
 
     public boolean checkEntryExist(String id) {
@@ -91,7 +116,7 @@ public class SQLiteJDBC {
 
     public Date convertStrToDate(String dateStr) {
         String[] splited = dateStr.split("\\s+");
-        String month="01";
+        String month = "01";
         switch (splited[1]) {
             case "Ocak":
                 month = "01";
@@ -130,7 +155,7 @@ public class SQLiteJDBC {
                 month = "12";
                 break;
         }
-        String startDateString = splited[0]+"/"+month+"/"+splited[2];
+        String startDateString = splited[0] + "/" + month + "/" + splited[2];
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         Date retDate;
         try {

@@ -6,8 +6,12 @@
 package googleplay.crawler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import net.bytebuddy.asm.Advice;
 
 /**
  *
@@ -20,6 +24,24 @@ public class main extends javax.swing.JFrame {
      */
     public main() {
         initComponents();
+        // create directories in c
+        createDirectories cd = new createDirectories();
+        if (cd.create()) {
+            createTables ct = new createTables();
+            ct.createNewTable();
+        }
+        DefaultListModel listModel = new DefaultListModel();
+        listModel.addElement("Ana Sayfa : /store/apps");
+        listModel.addElement("En iyi Uygulamalar : /store/apps/top");
+        listModel.addElement("Yeni çıkanlar : /store/apps/new");
+        getCategories gc = new getCategories();
+        try {
+                ArrayList<String> arr = gc.getAllCategories();
+                arr.forEach(element -> listModel.addElement(element) );
+                catList.setModel(listModel);
+        } catch (IOException ex) {
+            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -31,21 +53,60 @@ public class main extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        catList = new javax.swing.JList<>();
+        submitBtn = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(1200, 650));
+
+        jScrollPane1.setViewportView(catList);
+
+        submitBtn.setText("Submit");
+        submitBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                submitBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 720, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(57, 57, 57)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(submitBtn)
+                .addContainerGap(183, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 468, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 487, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(submitBtn)
+                .addGap(219, 219, 219))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void submitBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitBtnActionPerformed
+        // TODO add your handling code here:
+        getApps ga = new getApps();
+        catList.getSelectedValuesList().forEach(element -> {
+            String [] arr = element.split(":");
+            try {
+                ga.getAllApps(arr[1].substring(1));
+            } catch (IOException ex) {
+                Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+    }//GEN-LAST:event_submitBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -80,20 +141,12 @@ public class main extends javax.swing.JFrame {
                 new main().setVisible(true);
             }
         });
-        // create directories in c
-        createDirectories cd = new createDirectories();
-        if (cd.create()) {
-            createTables ct = new createTables();
-            ct.createNewTable();
-        }
-        getCategories gc = new getCategories();
-        try {
-            gc.getAllCategories();
-        } catch (IOException ex) {
-            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JList<String> catList;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton submitBtn;
     // End of variables declaration//GEN-END:variables
 }
