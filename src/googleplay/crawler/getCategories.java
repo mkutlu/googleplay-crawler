@@ -17,16 +17,15 @@ import org.jsoup.select.Elements;
  * @author MesutKutlu
  */
 public class getCategories {
-    public static void main(String [] args){
-        try {
-            getAllCategories();
-        } catch (IOException ex) {
-            Logger.getLogger(getCategories.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    public static void getAllCategories() throws IOException {
+    
+    public void getAllCategories() throws IOException {
         Document document = Jsoup.connect("https://play.google.com/store/apps").get();
         Elements categories = document.select(".child-submenu-link");
-        categories.forEach(category -> System.out.println(category.attr("title")));
+        SQLiteJDBC sql = new SQLiteJDBC();
+        System.out.println("Categories are creating:");
+        categories.forEach(category -> {
+            System.out.println(category.attr("title")+" : "+category.attr("href"));
+            sql.addCategoryEntry(category.attr("title"),category.attr("href"));   
+        });
     }
 }

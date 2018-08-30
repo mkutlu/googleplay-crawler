@@ -16,20 +16,21 @@ import java.sql.Statement;
  */
 public class createTables {
      public static String url = "jdbc:sqlite:C://googleplay-crawler/gpcrawler.db";
-     public static void createNewTable() {
+     public  void createNewTable() {
         // SQLite connection string
         
         // SQL statement for creating a new table
         String sql;
          runSql("CREATE TABLE IF NOT EXISTS categories (\n"
                 + "	href text PRIMARY KEY,\n"
-                + "	categoryName text NOT NULL,\n"
+                + "	categoryName text NOT NULL \n"
                 + ");");
           runSql("CREATE TABLE IF NOT EXISTS apps (\n"
                 + "	id text NOT NULL,\n"
                 + "	appName text PRIMARY KEY,\n"
                 + "	catHref text NOT NULL,\n"
-                + "	devMail text NOT NULL,\n"
+                + "	updateDate date NOT NULL,\n"
+                + "	devMail text NOT NULL \n"
                 + ");");
     }
      public static void runSql(String query){
