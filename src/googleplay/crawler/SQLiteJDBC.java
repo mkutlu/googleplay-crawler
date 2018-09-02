@@ -13,6 +13,7 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class SQLiteJDBC {
@@ -60,11 +61,13 @@ public class SQLiteJDBC {
     }
 
     public void addAppEntry(String id, String appName, String catHref, String updateDate, String devMail) {
+        System.out.println("id"+id);
         if (!checkEntryExist(id)) {
             String sql = "INSERT INTO apps(id,appName,catHref,updateDate,devMail) VALUES(?,?,?,?,?)";
 
             try (Connection conn = DriverManager.getConnection(url);
                     PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                System.out.println(id + " | " + appName + " | " + catHref + " | " + updateDate + " | " + devMail);
                 Date converted = convertStrToDate(updateDate);
                 java.sql.Date sd = new java.sql.Date(converted.getTime());
                 pstmt.setString(1, id);
@@ -73,24 +76,29 @@ public class SQLiteJDBC {
                 pstmt.setDate(4, sd);
                 pstmt.setString(5, devMail);
                 pstmt.executeUpdate();
+                pstmt.close();
+                //conn.close();
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
             }
-        }
-        else{
-            System.out.println(appName+" already exist in database");
+        } else {
+            System.out.println(appName + " already exist in database");
         }
     }
 
     public boolean checkCatExist(String id) {
-        String sql = "SELECT COUNT(*) as total FROM categories where catHref=?";
+        String sql = "SELECT COUNT(*) as total FROM categories where href=?";
 
         try (Connection conn = DriverManager.getConnection(url);
                 PreparedStatement pstmt = conn.prepareStatement(sql);) {
             pstmt.setString(1, id);
             ResultSet rs = pstmt.executeQuery();
             // loop through the result set
-            return rs.getInt("total") > 0;
+            int mm =  rs.getInt("total");
+            rs.close();
+            //conn.close();
+            pstmt.close();
+            return mm > 0;
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -106,7 +114,11 @@ public class SQLiteJDBC {
             pstmt.setString(1, id);
             ResultSet rs = pstmt.executeQuery();
             // loop through the result set
-            return rs.getInt("total") > 0;
+            int mm =  rs.getInt("total");
+            rs.close();
+            //conn.close();
+            pstmt.close();
+            return mm > 0;
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -115,8 +127,47 @@ public class SQLiteJDBC {
     }
 
     public Date convertStrToDate(String dateStr) {
-        String[] splited = dateStr.split("\\s+");
+        System.out.println(dateStr);
+        String[] splited = dateStr.replace(",", "").split("\\s+");
         String month = "01";
+        switch (splited[0]) {
+            case "January":
+                month = "01";
+                break;
+            case "February":
+                month = "02";
+                break;
+            case "March":
+                month = "03";
+                break;
+            case "April":
+                month = "04";
+                break;
+            case "May":
+                month = "05";
+                break;
+            case "June":
+                month = "06";
+                break;
+            case "July":
+                month = "07";
+                break;
+            case "August":
+                month = "08";
+                break;
+            case "September":
+                month = "09";
+                break;
+            case "October":
+                month = "10";
+                break;
+            case "Novamber":
+                month = "11";
+                break;
+            case "December":
+                month = "12";
+                break;
+        }
         switch (splited[1]) {
             case "Ocak":
                 month = "01";
@@ -155,7 +206,14 @@ public class SQLiteJDBC {
                 month = "12";
                 break;
         }
-        String startDateString = splited[0] + "/" + month + "/" + splited[2];
+        String startDateString;
+        if (dateStr.contains(",")) {
+            startDateString = splited[1] + "/" + month + "/" + splited[2];
+
+        } else {
+            startDateString = splited[0] + "/" + month + "/" + splited[2];
+
+        }
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         Date retDate;
         try {
@@ -163,6 +221,29 @@ public class SQLiteJDBC {
             return retDate;
         } catch (ParseException e) {
             e.printStackTrace();
+        }
+        return null;
+    }
+    public ArrayList selectAll(){
+        String sql = "SELECT id, appName, catHref, updateDate, devMail FROM Apps";
+        ArrayList<String> arr = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt  = conn.createStatement();
+             ResultSet rs    = stmt.executeQuery(sql)){
+            // loop through the result set
+            while (rs.next()) {
+                        System.out.println(arr.size());
+
+                arr.add(rs.getString("id") +  "*" + 
+                                   rs.getString("appName") + "*" +
+                                   rs.getString("catHref") + "*" +
+                                   rs.getDate("updateDate")+ "*" +
+                                   rs.getString("devMail"));
+                System.out.println(arr.toString());
+            }
+            return arr;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
         return null;
     }

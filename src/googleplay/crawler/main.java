@@ -5,12 +5,16 @@
  */
 package googleplay.crawler;
 
+import static googleplay.crawler.SQLiteJDBC.url;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.table.DefaultTableModel;
 import net.bytebuddy.asm.Advice;
 
 /**
@@ -26,7 +30,7 @@ public class main extends javax.swing.JFrame {
         initComponents();
         // create directories in c
         createDirectories cd = new createDirectories();
-        if (cd.create()) {
+        if (!cd.create()) {
             createTables ct = new createTables();
             ct.createNewTable();
         }
@@ -36,11 +40,20 @@ public class main extends javax.swing.JFrame {
         listModel.addElement("Yeni çıkanlar : /store/apps/new");
         getCategories gc = new getCategories();
         try {
-                ArrayList<String> arr = gc.getAllCategories();
-                arr.forEach(element -> listModel.addElement(element) );
-                catList.setModel(listModel);
+            ArrayList<String> arr = gc.getAllCategories();
+            arr.forEach(element -> listModel.addElement(element));
+            catList.setModel(listModel);
         } catch (IOException ex) {
             Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        //right table populate
+        SQLiteJDBC sq = new SQLiteJDBC();
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        ArrayList<String> array = sq.selectAll();
+        for(String element : array){
+            String[] arr = element.split("\\*");
+            model.addRow(new Object[]{arr[1],arr[2],arr[4],arr[3],arr[0]});
         }
     }
 
@@ -56,6 +69,8 @@ public class main extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         catList = new javax.swing.JList<>();
         submitBtn = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(1200, 650));
@@ -69,6 +84,26 @@ public class main extends javax.swing.JFrame {
             }
         });
 
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "App Name", "Category", "Mail", "Last Update", "id"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable1.setToolTipText("");
+        jTable1.setRequestFocusEnabled(false);
+        jScrollPane3.setViewportView(jTable1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -78,18 +113,22 @@ public class main extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(submitBtn)
-                .addContainerGap(183, Short.MAX_VALUE))
+                .addGap(30, 30, 30)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 599, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(40, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 487, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(316, Short.MAX_VALUE)
                 .addComponent(submitBtn)
                 .addGap(219, 219, 219))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 487, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -99,7 +138,7 @@ public class main extends javax.swing.JFrame {
         // TODO add your handling code here:
         getApps ga = new getApps();
         catList.getSelectedValuesList().forEach(element -> {
-            String [] arr = element.split(":");
+            String[] arr = element.split(":");
             try {
                 ga.getAllApps(arr[1].substring(1));
             } catch (IOException ex) {
@@ -141,12 +180,14 @@ public class main extends javax.swing.JFrame {
                 new main().setVisible(true);
             }
         });
-        
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList<String> catList;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTable jTable1;
     private javax.swing.JButton submitBtn;
     // End of variables declaration//GEN-END:variables
 }
