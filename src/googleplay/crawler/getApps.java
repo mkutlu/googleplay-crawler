@@ -29,25 +29,18 @@ public class getApps {
         Document document = Jsoup.connect("https://play.google.com" + href).get();
         Elements categories = document.select(".see-more");
         if (categories.isEmpty()) {
+            System.out.println(href + " CRAWLING :");
             getFunction(href);
         } else {
             categories.forEach(category -> {
-                System.out.println(category.text() + " : " + category.attr("href"));
                 try {
+                    System.out.println(category.attr("href") + " CRAWLING :");
                     getFunction(category.attr("href"));
                 } catch (IOException ex) {
                     Logger.getLogger(getApps.class.getName()).log(Level.SEVERE, null, ex);
                 }
             });
         }
-        SQLiteJDBC sql = new SQLiteJDBC();
-        ArrayList<String> arr = new ArrayList<>();
-        System.out.println("Categories are creating:");
-        categories.forEach(category -> {
-            System.out.println(category.attr("title") + " : " + category.attr("href"));
-            arr.add(category.attr("title") + " : " + category.attr("href"));
-            sql.addCategoryEntry(category.attr("title"), category.attr("href"));
-        });
     }
 
     public void getFunction(String href) throws IOException {
@@ -97,7 +90,7 @@ public class getApps {
                     category = tag.text();
                 }
             }
-            id = appHref.substring(appHref.indexOf("=")+1);
+            id = appHref.substring(appHref.indexOf("=") + 1);
 
             Elements aTags = document.select(".htlgb a");
             for (Element tag : aTags) {

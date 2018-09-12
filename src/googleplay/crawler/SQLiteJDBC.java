@@ -232,14 +232,11 @@ public class SQLiteJDBC {
              ResultSet rs    = stmt.executeQuery(sql)){
             // loop through the result set
             while (rs.next()) {
-                        System.out.println(arr.size());
-
                 arr.add(rs.getString("id") +  "*" + 
                                    rs.getString("appName") + "*" +
                                    rs.getString("catHref") + "*" +
                                    rs.getDate("updateDate")+ "*" +
                                    rs.getString("devMail"));
-                System.out.println(arr.toString());
             }
             return arr;
         } catch (SQLException e) {

@@ -28,7 +28,7 @@ public class main extends javax.swing.JFrame {
      */
     public main() {
         initComponents();
-        // create directories in c
+         // create directories in c
         createDirectories cd = new createDirectories();
         if (!cd.create()) {
             createTables ct = new createTables();
@@ -51,9 +51,9 @@ public class main extends javax.swing.JFrame {
         SQLiteJDBC sq = new SQLiteJDBC();
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         ArrayList<String> array = sq.selectAll();
-        for(String element : array){
+        for (String element : array) {
             String[] arr = element.split("\\*");
-            model.addRow(new Object[]{arr[1],arr[2],arr[4],arr[3],arr[0]});
+            model.addRow(new Object[]{arr[1], arr[2], arr[4], arr[3], arr[0]});
         }
     }
 
@@ -178,9 +178,14 @@ public class main extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new main().setVisible(true);
+                
             }
         });
 
+    }
+
+    public void backend() {
+       
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
