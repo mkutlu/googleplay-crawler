@@ -46,7 +46,9 @@ public class main extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        populateTable();
+    }
+    public void populateTable(){
         //right table populate
         SQLiteJDBC sq = new SQLiteJDBC();
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
@@ -136,15 +138,21 @@ public class main extends javax.swing.JFrame {
 
     private void submitBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitBtnActionPerformed
         // TODO add your handling code here:
-        getApps ga = new getApps();
-        catList.getSelectedValuesList().forEach(element -> {
-            String[] arr = element.split(":");
-            try {
-                ga.getAllApps(arr[1].substring(1));
-            } catch (IOException ex) {
-                Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        Thread thread = new Thread() {
+            public void run() {
+                getApps ga = new getApps();
+                catList.getSelectedValuesList().forEach(element -> {
+                    String[] arr = element.split(":");
+                    try {
+                        ga.getAllApps(arr[1].substring(1));
+                    } catch (IOException ex) {
+                        Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }); 
+                populateTable();
             }
-        });
+        };
+        thread.start();
     }//GEN-LAST:event_submitBtnActionPerformed
 
     /**
@@ -183,11 +191,6 @@ public class main extends javax.swing.JFrame {
         });
 
     }
-
-    public void backend() {
-       
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList<String> catList;
     private javax.swing.JScrollPane jScrollPane1;
