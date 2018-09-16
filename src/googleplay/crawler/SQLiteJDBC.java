@@ -70,6 +70,7 @@ public class SQLiteJDBC {
                 System.out.println(id + " | " + appName + " | " + catHref + " | " + updateDate + " | " + devMail);
                 Date converted = convertStrToDate(updateDate);
                 java.sql.Date sd = new java.sql.Date(converted.getTime());
+                System.out.println("TIME:" + sd);
                 pstmt.setString(1, id);
                 pstmt.setString(2, appName);
                 pstmt.setString(3, catHref);
@@ -208,13 +209,13 @@ public class SQLiteJDBC {
         }
         String startDateString;
         if (dateStr.contains(",")) {
-            startDateString = splited[1] + "/" + month + "/" + splited[2];
+            startDateString = splited[2] + "-" + month + "-" + splited[1];
 
         } else {
-            startDateString = splited[0] + "/" + month + "/" + splited[2];
+            startDateString = splited[2] + "-" + month + "-" + splited[0];
 
         }
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         Date retDate;
         try {
             retDate = df.parse(startDateString);
@@ -224,8 +225,10 @@ public class SQLiteJDBC {
         }
         return null;
     }
-    public ArrayList selectAll(){
-        String sql = "SELECT id, appName, catHref, updateDate, devMail FROM Apps";
+    public ArrayList selectAll(String filter){
+        String sql = "SELECT id, appName, catHref, strftime('%Y-%m-%d', updateDate / 1000, 'unixepoch'), devMail FROM Apps ";
+        sql += filter;
+        System.out.println("SQL: "+ sql);
         ArrayList<String> arr = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt  = conn.createStatement();
@@ -235,7 +238,7 @@ public class SQLiteJDBC {
                 arr.add(rs.getString("id") +  "*" + 
                                    rs.getString("appName") + "*" +
                                    rs.getString("catHref") + "*" +
-                                   rs.getDate("updateDate")+ "*" +
+                                   rs.getString("strftime('%Y-%m-%d', updateDate / 1000, 'unixepoch')")+ "*" +
                                    rs.getString("devMail"));
             }
             return arr;
