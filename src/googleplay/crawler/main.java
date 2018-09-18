@@ -725,7 +725,7 @@ public class main extends javax.swing.JFrame {
             if (count == 0) {
                 filter += "WHERE ";
             }
-            if (count == 1) {
+            if (count > 0) {
                 filter += "AND ";
             }
             filter += "strftime('%Y-%m-%d', updateDate / 1000, 'unixepoch') >= Datetime('" + oDateFormat.format(jXDatePicker1.getDate()) + "','-1 day') ";
@@ -735,7 +735,7 @@ public class main extends javax.swing.JFrame {
             if (count == 0) {
                 filter += "WHERE ";
             }
-            if (count == 1) {
+            if (count > 0) {
                 filter += "AND ";
             }
             filter += "strftime('%Y-%m-%d', updateDate / 1000, 'unixepoch') <= Datetime('" + oDateFormat.format(jXDatePicker2.getDate()) + "') ";
